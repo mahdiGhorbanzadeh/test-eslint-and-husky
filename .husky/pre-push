@@ -7,6 +7,7 @@ commit_msg_length=$(echo "$commit_msg" | wc -c)
 
 echo "sssssssssssssss"
 echo "$commit_msg"
+echo "$1"
 echo "sssssssssssssssss"
 
 if [ "$commit_msg_length" -lt 10 ]; then
