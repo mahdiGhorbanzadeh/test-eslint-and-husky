@@ -2,13 +2,22 @@
 . "$(dirname "$0")/_/husky.sh"
 
 # Check the commit message length
-commit_msg=$(git log -1 --pretty=format:%s)
+commit_msg=$(git log -1 HEAD --pretty=format:%s)
 commit_msg_length=$(echo "$commit_msg" | wc -c)
+
+echo "sssssssssssssss"
+echo "$commit_msg"
+echo "$HUSKY_GIT_PARAMS"
+echo "sssssssssssssss"
 
 if [ "$commit_msg_length" -lt 10 ]; then
   echo "Commit message is too short. Please provide a descriptive message."
   exit 1
 fi
 
-# Run lint-staged and other pre-commit tasks
-npm run precommit
+# Check commit message against rules
+commit_msg_pattern="^(feat|fix|refactor|hotfix)\([^)]+\): [A-Za-z0-9 _,]+ \(#[0-9]+\)$"
+if ! [[ $commit_msg =~ $commit_msg_pattern ]]; then
+  echo "Invalid commit message format. Please follow the specified pattern."
+  exit 1
+fi
