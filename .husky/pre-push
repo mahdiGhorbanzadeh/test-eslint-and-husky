@@ -7,8 +7,7 @@ commit_msg_length=$(echo "$commit_msg" | wc -c)
 
 echo "sssssssssssssss"
 echo "$commit_msg"
-echo "$HUSKY_GIT_PARAMS"
-echo "sssssssssssssss"
+echo "sssssssssssssssss"
 
 if [ "$commit_msg_length" -lt 10 ]; then
   echo "Commit message is too short. Please provide a descriptive message."
