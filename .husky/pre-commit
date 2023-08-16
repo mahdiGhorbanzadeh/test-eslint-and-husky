@@ -1,4 +1,14 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
 
-npm test
+# Check the commit message length
+commit_msg=$(git log -1 --pretty=format:%s)
+commit_msg_length=$(echo "$commit_msg" | wc -c)
+
+if [ "$commit_msg_length" -lt 10 ]; then
+  echo "Commit message is too short. Please provide a descriptive message."
+  exit 1
+fi
+
+# Run lint-staged and other pre-commit tasks
+npm run precommit
