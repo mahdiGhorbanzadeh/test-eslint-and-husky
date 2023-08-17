@@ -1,10 +1,18 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
+# Function to check if a string is in kebab case
+is_kebab_case() {
+  if echo "$1" | grep -E '^[a-z]+(-[a-z]+)*$' > /dev/null; then
+    return 0 # String is in kebab case
+  else
+    return 1 # String is not in kebab case
+  fi
+}
+
 # Check the commit message length
 commit_msg=$(git log -1 HEAD --pretty=format:%s)
 commit_msg_length=$(echo "$commit_msg" | wc -c)
-
 
 if [ "$commit_msg_length" -lt 10 ]; then
   echo "Commit message is too short. Please provide a descriptive message."
@@ -15,5 +23,21 @@ fi
 commit_msg_pattern="^(feat|fix|refactor|hotfix)\([^)]+\): [A-Za-z0-9 _,]+ \(#[0-9]+\)$"
 if ! [[ $commit_msg =~ $commit_msg_pattern ]]; then
   echo "Invalid commit message format. Please follow the specified pattern."
+  exit 1
+fi
+
+# Check file names for kebab case
+files_not_kebab_case=()
+for file in $(git diff --cached --name-only --diff-filter=ACM); do
+  if ! is_kebab_case "$(basename "$file")"; then
+    files_not_kebab_case+=("$file")
+  fi
+done
+
+if [ ${#files_not_kebab_case[@]} -gt 0 ]; then
+  echo "The following files are not in kebab case:"
+  for file in "${files_not_kebab_case[@]}"; do
+    echo "  - $file"
+  done
   exit 1
 fi
