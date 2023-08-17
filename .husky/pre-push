@@ -3,7 +3,7 @@
 
 # Function to check if a string is in kebab case
 is_kebab_case() {
-  if echo "$1" | grep -E '^[a-z]+(-[a-z]+)*$' > /dev/null; then
+  if echo "$1" | grep -E '^[a-z]+(-[a-z]+)*\.(ts|tsx|js|json)$' > /dev/null; then
     return 0 # String is in kebab case
   else
     return 1 # String is not in kebab case
@@ -26,17 +26,34 @@ if ! [[ $commit_msg =~ $commit_msg_pattern ]]; then
   exit 1
 fi
 
-# Check file names for kebab case
+# Check files in the "test-folder" for kebab case
 files_not_kebab_case=()
-for file in $(git diff --cached --name-only --diff-filter=ACM); do
+for file in $(git ls-files "test-folder"); do
   if ! is_kebab_case "$(basename "$file")"; then
     files_not_kebab_case+=("$file")
   fi
 done
 
 if [ ${#files_not_kebab_case[@]} -gt 0 ]; then
-  echo "The following files are not in kebab case:"
+  echo "The following files in 'test-folder' are not in kebab case:"
   for file in "${files_not_kebab_case[@]}"; do
+    echo "  - $file"
+  done
+  exit 1
+fi
+
+# Check for non-English words in changes
+non_english_changes=()
+for file in $(git diff --cached --name-only --diff-filter=ACM); do
+  changes=$(git diff --cached "$file" | sed -n '/^\+[^+]/p' | sed 's/^+//')
+  if contains_non_english "$changes"; then
+    non_english_changes+=("$file")
+  fi
+done
+
+if [ ${#non_english_changes[@]} -gt 0 ]; then
+  echo "The following files have non-English words in the changes:"
+  for file in "${non_english_changes[@]}"; do
     echo "  - $file"
   done
   exit 1
