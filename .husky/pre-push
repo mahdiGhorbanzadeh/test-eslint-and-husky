@@ -10,6 +10,15 @@ is_kebab_case() {
   fi
 }
 
+# Function to check if a string contains non-English words
+contains_non_english() {
+  if echo "$1" | grep -Pq "[^\x00-\x7F]"; then
+    return 0 # String contains non-English characters
+  else
+    return 1 # String is in English
+  fi
+}
+
 # Check the commit message length
 commit_msg=$(git log -1 HEAD --pretty=format:%s)
 commit_msg_length=$(echo "$commit_msg" | wc -c)
