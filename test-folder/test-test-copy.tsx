@@ -1,1 +1,1 @@
-console.log(" 1تست");
+console.log("  سنشنسشی1تست");
